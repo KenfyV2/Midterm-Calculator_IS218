@@ -9,7 +9,8 @@ mccabe==0.7.0
 packaging==23.2
 platformdirs==4.1.0
 pluggy==1.4.0
-pandas==2.0.3
+numpy==1.23.5  # Ensure compatibility with pandas
+pandas==2.0.3  # Ensure compatibility with numpy
 pylint==3.0.3
 pylint-pytest==1.1.7
 pytest==8.0.0

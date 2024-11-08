@@ -50,6 +50,9 @@ This project is an advanced Python-based calculator application designed for a s
     - load_history
     - clear_history
     - delete_history
+    - list_states
+    - get_state_details
+    - save_state_abbreviations
     - menu
     - exit
     >>> exit

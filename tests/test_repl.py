@@ -26,6 +26,7 @@ def test_add_command(monkeypatch):
     monkeypatch.setattr('builtins.print', lambda x: None)
     with pytest.raises(SystemExit):
         repl.run()
+    assert not repl.calculator.history.empty
     assert repl.calculator.history.iloc[-1]['result'] == 3
 
 def test_subtract_command(monkeypatch):
@@ -38,6 +39,7 @@ def test_subtract_command(monkeypatch):
     monkeypatch.setattr('builtins.print', lambda x: None)
     with pytest.raises(SystemExit):
         repl.run()
+    assert not repl.calculator.history.empty
     assert repl.calculator.history.iloc[-1]['result'] == 2
 
 def test_multiply_command(monkeypatch):
@@ -50,6 +52,7 @@ def test_multiply_command(monkeypatch):
     monkeypatch.setattr('builtins.print', lambda x: None)
     with pytest.raises(SystemExit):
         repl.run()
+    assert not repl.calculator.history.empty
     assert repl.calculator.history.iloc[-1]['result'] == 6
 
 def test_divide_command(monkeypatch):
@@ -62,6 +65,7 @@ def test_divide_command(monkeypatch):
     monkeypatch.setattr('builtins.print', lambda x: None)
     with pytest.raises(SystemExit):
         repl.run()
+    assert not repl.calculator.history.empty
     assert repl.calculator.history.iloc[-1]['result'] == 2
 
 def test_divide_by_zero_command(monkeypatch):
@@ -74,7 +78,8 @@ def test_divide_by_zero_command(monkeypatch):
     monkeypatch.setattr('builtins.print', lambda x: None)
     with pytest.raises(SystemExit):
         repl.run()
-    assert repl.calculator.history.empty
+    with pytest.raises(ValueError, match="Cannot divide by zero"):
+        repl.calculator.divide(6, 0)
 
 def test_unknown_command(monkeypatch):
     """

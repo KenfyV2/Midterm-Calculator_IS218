@@ -39,7 +39,9 @@ class REPL:
             'exit': self.exit
         }
         # Merge plugin commands into the REPL commands
-        self.commands.update({name: self.create_plugin_command(func) for name, func in self.plugins.items()})
+        self.commands.update({
+            name: self.create_plugin_command(func) for name, func in self.plugins.items()
+        })
         logger.info("REPL initialized with commands: %s", ", ".join(self.commands.keys()))
 
     def run(self):
@@ -51,7 +53,10 @@ class REPL:
             command = input(">>> ").strip().lower()
             if command in self.commands:
                 logger.debug("Executing command: %s", command)
-                self.commands[command]()
+                try:
+                    self.commands[command]()
+                except ValueError as e:
+                    print(e)
             else:
                 logger.warning("Unknown command: %s", command)
                 print("Unknown command")
@@ -65,6 +70,7 @@ class REPL:
             b = float(input("Enter second number: "))
             result = func(a, b)
             print(f"Result: {result}")
+            self.calculator.save_operation(func.__name__, a, b, result)
         return command
 
     def add(self):

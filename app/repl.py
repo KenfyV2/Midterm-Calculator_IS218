@@ -28,10 +28,6 @@ class REPL:
             'subtract': self.subtract,
             'multiply': self.multiply,
             'divide': self.divide,
-            'save_history': self.save_history,
-            'load_history': self.load_history,
-            'clear_history': self.clear_history,
-            'delete_history': self.delete_history,
             'list_states': self.list_states,
             'get_state_details': self.get_state_details,
             'save_state_abbreviations': self.save_state_abbreviations,
@@ -111,37 +107,6 @@ class REPL:
             print(f"Result: {result}")
         except ValueError as e:
             print(e)
-
-    def save_history(self):
-        """
-        Save the calculation history to a CSV file.
-        """
-        filename = input("Enter filename to save history: ")
-        self.calculator.save_history(filename)
-        print(f"History saved to {filename}")
-
-    def load_history(self):
-        """
-        Load the calculation history from a CSV file.
-        """
-        filename = input("Enter filename to load history: ")
-        self.calculator.load_history(filename)
-        print(f"History loaded from {filename}")
-
-    def clear_history(self):
-        """
-        Clear the current calculation history.
-        """
-        self.calculator.clear_history()
-        print("History cleared")
-
-    def delete_history(self):
-        """
-        Delete a specified history file.
-        """
-        filename = input("Enter filename to delete history: ")
-        self.calculator.delete_history(filename)
-        print(f"History file {filename} deleted")
 
     def list_states(self):
         """

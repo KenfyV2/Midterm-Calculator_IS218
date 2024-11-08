@@ -72,7 +72,8 @@ class Calculator:
         # Exclude empty or all-NA entries before concatenation
         if not new_record.isna().all().all():
             self.history = pd.concat([self.history, new_record], ignore_index=True)
-            logger.info("Saved history: %s", new_record.to_dict(orient='records'))
+            # Comment out or delete the following line to remove the log message
+            # logger.info("Saved history: %s", new_record.to_dict(orient='records'))
 
     def save_history(self, filename):
         """

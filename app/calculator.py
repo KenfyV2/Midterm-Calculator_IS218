@@ -3,9 +3,9 @@ This module contains the Calculator class which performs arithmetic operations
 and manages the calculation history.
 """
 
-import pandas as pd
 import os
 import logging
+import pandas as pd
 
 logger = logging.getLogger('app.calculator')
 
@@ -22,7 +22,7 @@ class Calculator:
         Perform addition of two numbers and save the result to history.
         """
         result = a + b
-        self._save_history('add', a, b, result)
+        self.save_operation('add', a, b, result)
         logger.debug("Performed addition: %s + %s = %s", a, b, result)
         return result
 
@@ -31,7 +31,7 @@ class Calculator:
         Perform subtraction of two numbers and save the result to history.
         """
         result = a - b
-        self._save_history('subtract', a, b, result)
+        self.save_operation('subtract', a, b, result)
         logger.debug("Performed subtraction: %s - %s = %s", a, b, result)
         return result
 
@@ -40,7 +40,7 @@ class Calculator:
         Perform multiplication of two numbers and save the result to history.
         """
         result = a * b
-        self._save_history('multiply', a, b, result)
+        self.save_operation('multiply', a, b, result)
         logger.debug("Performed multiplication: %s * %s = %s", a, b, result)
         return result
 
@@ -53,11 +53,11 @@ class Calculator:
             logger.error("Attempted to divide by zero.")
             raise ValueError("Cannot divide by zero")
         result = a / b
-        self._save_history('divide', a, b, result)
+        self.save_operation('divide', a, b, result)
         logger.debug("Performed division: %s / %s = %s", a, b, result)
         return result
 
-    def _save_history(self, operation, operand1, operand2, result):
+    def save_operation(self, operation, operand1, operand2, result):
         """
         Save the operation and its result to the calculation history.
         """

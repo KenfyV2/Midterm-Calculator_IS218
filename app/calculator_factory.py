@@ -8,6 +8,8 @@ class CalculatorFactory:
     """
     The CalculatorFactory class provides a factory method for creating calculators.
     """
+    # Disable the "too few public methods" warning for this class
+    # pylint: disable=too-few-public-methods
     @staticmethod
     def create_calculator():
         """

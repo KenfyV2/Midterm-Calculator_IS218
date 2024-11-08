@@ -1,12 +1,12 @@
 """
-This module contains the App class which initializes and runs the REPL.
+This module contains the App class which initializes and runs the application.
 """
 
-from .repl import REPL
+from app.repl import REPL
 
 class App:
     """
-    The App class initializes and runs the REPL.
+    The App class initializes and runs the application.
     """
     # Disable the "too few public methods" warning for this class
     # pylint: disable=too-few-public-methods

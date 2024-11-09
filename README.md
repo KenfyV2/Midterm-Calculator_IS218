@@ -146,7 +146,7 @@ pylint app tests
 The CI/CD pipeline is set up using GitHub Actions. The workflow file is located at .github/workflows/python-app.yml. It runs tests and checks code quality on every push and pull request to the main branch.
 
 ## Video Demonstration
-Link to video demonstration
+[Link to video demonstration](https://drive.google.com/file/d/1ojcp6sMcG1T9oc2wKbLPQOIeuLdPK22Q/view?usp=sharing)
 
 ## License
 This project is licensed under the MIT License. See the LICENSE file for details.

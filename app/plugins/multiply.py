@@ -2,7 +2,7 @@
 This module contains the multiply_command function which performs multiplication.
 """
 
-def multiply_command(a, b):
+def multiply(a, b):
     """
     Perform multiplication of two numbers.
 

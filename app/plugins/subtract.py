@@ -2,7 +2,7 @@
 This module contains the subtract_command function which performs subtraction.
 """
 
-def subtract_command(a, b):
+def subtract(a, b):
     """
     Perform subtraction of two numbers.
 

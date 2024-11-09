@@ -13,3 +13,5 @@ def test_load_plugins():
     assert 'subtract' in plugins
     assert 'multiply' in plugins
     assert 'divide' in plugins
+    assert 'power' in plugins
+    assert 'root' in plugins

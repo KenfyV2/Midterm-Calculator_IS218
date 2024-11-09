@@ -1,16 +1,17 @@
 """
-This module provides strategy classes for different arithmetic operations.
+This module defines strategy classes for different arithmetic operations.
 """
 
-class OperationStrategy:
+from abc import ABC, abstractmethod
+
+class OperationStrategy(ABC):
     """
-    The OperationStrategy class defines the interface for arithmetic operations.
+    Abstract base class for operation strategies.
     """
-    # Disable the "too few public methods" warning for this class
-    # pylint: disable=too-few-public-methods
+    @abstractmethod
     def execute(self, a, b):
         """
-        Execute the operation with the given operands.
+        Execute the operation strategy.
 
         Args:
             a (float): The first operand.
@@ -19,85 +20,122 @@ class OperationStrategy:
         Returns:
             float: The result of the operation.
         """
-        raise NotImplementedError("You should implement this method.")
+        # No need for pass here since it's an abstract method
 
 class AddStrategy(OperationStrategy):
     """
-    The AddStrategy class implements the addition operation.
+    Strategy class for addition.
     """
-    # Disable the "too few public methods" warning for this class
     # pylint: disable=too-few-public-methods
     def execute(self, a, b):
         """
-        Perform addition of two numbers.
+        Execute the addition strategy.
 
         Args:
             a (float): The first operand.
             b (float): The second operand.
 
         Returns:
-            float: The result of adding a and b.
+            float: The result of the addition.
         """
         return a + b
 
 class SubtractStrategy(OperationStrategy):
     """
-    The SubtractStrategy class implements the subtraction operation.
+    Strategy class for subtraction.
     """
-    # Disable the "too few public methods" warning for this class
     # pylint: disable=too-few-public-methods
     def execute(self, a, b):
         """
-        Perform subtraction of two numbers.
+        Execute the subtraction strategy.
 
         Args:
             a (float): The first operand.
             b (float): The second operand.
 
         Returns:
-            float: The result of subtracting b from a.
+            float: The result of the subtraction.
         """
         return a - b
 
 class MultiplyStrategy(OperationStrategy):
     """
-    The MultiplyStrategy class implements the multiplication operation.
+    Strategy class for multiplication.
     """
-    # Disable the "too few public methods" warning for this class
     # pylint: disable=too-few-public-methods
     def execute(self, a, b):
         """
-        Perform multiplication of two numbers.
+        Execute the multiplication strategy.
 
         Args:
             a (float): The first operand.
             b (float): The second operand.
 
         Returns:
-            float: The result of multiplying a and b.
+            float: The result of the multiplication.
         """
         return a * b
 
 class DivideStrategy(OperationStrategy):
     """
-    The DivideStrategy class implements the division operation.
+    Strategy class for division.
     """
-    # Disable the "too few public methods" warning for this class
     # pylint: disable=too-few-public-methods
     def execute(self, a, b):
         """
-        Perform division of two numbers.
+        Execute the division strategy.
 
         Args:
             a (float): The first operand.
             b (float): The second operand.
 
         Returns:
-            float: The result of dividing a by b.
+            float: The result of the division.
 
         Raises:
-            ValueError: If b is zero.
+            ValueError: If the second operand is zero.
         """
         if b == 0:
             raise ValueError("Cannot divide by zero")
         return a / b
+
+class PowerStrategy(OperationStrategy):
+    """
+    Strategy class for exponentiation.
+    """
+    # pylint: disable=too-few-public-methods
+    def execute(self, a, b):
+        """
+        Execute the exponentiation strategy.
+
+        Args:
+            a (float): The base.
+            b (float): The exponent.
+
+        Returns:
+            float: The result of the exponentiation.
+        """
+        return a ** b
+
+class RootStrategy(OperationStrategy):
+    """
+    Strategy class for root calculation.
+    """
+    # pylint: disable=too-few-public-methods
+    def execute(self, a, b):
+        """
+        Execute the root calculation strategy.
+
+        Args:
+            a (float): The number.
+            b (float): The root.
+
+        Returns:
+            float: The result of the root calculation.
+
+        Raises:
+            ValueError: If the root is zero.
+        """
+        if b == 0:
+            raise ValueError("Cannot take root with zero")
+        return a ** (1 / b)

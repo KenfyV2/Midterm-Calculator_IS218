@@ -1,27 +1,22 @@
 """
-This module provides functionality to dynamically load plugins for the calculator application.
+This module provides functionality to load plugins dynamically.
 """
 
 import importlib
-import os
+import pkgutil
 
 def load_plugins():
     """
-    Load and return a dictionary of plugin commands.
-
-    This function dynamically loads all Python modules in the current directory
-    (excluding __init__.py) and retrieves a command function from each module.
+    Load plugins dynamically from the current package.
 
     Returns:
-        dict: A dictionary where the keys are the plugin names and the values are the command 
-        functions.
+        dict: A dictionary of plugin names and their corresponding callable objects.
     """
     plugins = {}
-    plugin_dir = os.path.dirname(__file__)
-    for filename in os.listdir(plugin_dir):
-        if filename.endswith('.py') and filename != '__init__.py':
-            module_name = filename[:-3]
-            module = importlib.import_module(f'app.plugins.{module_name}')
-            command_name = f"{module_name}_command"
-            plugins[module_name] = getattr(module, command_name)
+    package = __package__
+    for _, name, _ in pkgutil.iter_modules(__path__):
+        module = importlib.import_module(f"{package}.{name}")
+        for attr in dir(module):
+            if callable(getattr(module, attr)):
+                plugins[attr] = getattr(module, attr)
     return plugins

@@ -8,6 +8,7 @@ class OperationStrategy(ABC):
     """
     Abstract base class for operation strategies.
     """
+    # pylint: disable=too-few-public-methods
     @abstractmethod
     def execute(self, a, b):
         """

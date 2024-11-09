@@ -2,7 +2,7 @@
 This module contains the divide_command function which performs division.
 """
 
-def divide_command(a, b):
+def divide(a, b):
     """
     Perform division of two numbers.
 

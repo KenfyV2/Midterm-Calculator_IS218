@@ -33,6 +33,16 @@ def test_enable_history():
         config.enable_history(False)
         assert not config.history_enabled
 
+def test_ensure_history_file_exists():
+    """
+    Test the ensure_history_file_exists method of the CalculatorConfig class.
+    """
+    with patch('os.makedirs') as mock_makedirs, patch('builtins.open', mock_open()) as mock_file:
+        config = CalculatorConfig()
+        config.ensure_history_file_exists()
+        mock_makedirs.assert_called_once_with('data', exist_ok=True)
+        mock_file.assert_called_once_with('data/calculator_history.csv', 'w', encoding='utf-8')
+
 def test_repr():
     """
     Test the __repr__ method of the CalculatorConfig class.

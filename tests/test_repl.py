@@ -18,8 +18,8 @@ def test_repl_commands():
     assert 'root' in repl.commands
     assert 'history' in repl.commands
     assert 'clear' in repl.commands
-    assert 'save' in repl.commands
-    assert 'load' in repl.commands
+    assert 'save_to' in repl.commands
+    assert 'load_from' in repl.commands
     assert 'menu' in repl.commands
     assert 'exit' in repl.commands
 
@@ -73,30 +73,6 @@ def test_clear_history_command(monkeypatch):
     with pytest.raises(SystemExit):
         repl.run()
     assert repl.calculator.history.empty
-
-def test_save_history_command(monkeypatch):
-    """
-    Test the save history command in the REPL.
-    """
-    repl = REPL()
-    inputs = iter(['add', '1', '1', 'save', 'exit'])
-    monkeypatch.setattr('builtins.input', lambda _: next(inputs))
-    monkeypatch.setattr('builtins.print', lambda x: None)
-    with pytest.raises(SystemExit):
-        repl.run()
-    assert not repl.calculator.history.empty
-
-def test_load_history_command(monkeypatch):
-    """
-    Test the load history command in the REPL.
-    """
-    repl = REPL()
-    inputs = iter(['load', 'calculator_history.csv', 'exit'])
-    monkeypatch.setattr('builtins.input', lambda _: next(inputs))
-    monkeypatch.setattr('builtins.print', lambda x: None)
-    with pytest.raises(SystemExit):
-        repl.run()
-    assert not repl.calculator.history.empty
 
 def test_menu_command(monkeypatch):
     """

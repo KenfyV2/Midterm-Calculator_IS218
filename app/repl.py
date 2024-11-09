@@ -18,8 +18,6 @@ class REPL:
     The REPL class provides a command-line interface for the calculator application.
     It supports basic arithmetic operations and history management.
     """
-    # Disable the "too few public methods" warning for this class
-    # pylint: disable=too-few-public-methods
     def __init__(self):
         """
         Initialize the REPL with calculator and plugin commands.
@@ -33,9 +31,7 @@ class REPL:
         self.commands = {
             'history': self.show_history,
             'clear': self.clear_history,
-            'save': self.save_history,
             'save_to': self.save_to,
-            'load': self.load_history,
             'load_from': self.load_from,
             'menu': self.menu,
             'exit': self.exit
@@ -134,7 +130,8 @@ class REPL:
         """
         print("Available commands:")
         for command in self.commands:
-            print(f" - {command}")
+            if command not in ['save', 'load', '__init__']:
+                print(f" - {command}")
 
     def exit(self):
         """

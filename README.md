@@ -46,9 +46,12 @@ This project is an advanced Python-based calculator application designed for a s
     - subtract
     - multiply
     - divide
-    - list_states
-    - get_state_details
-    - save_state_abbreviations
+    - power
+    - root
+    - history
+    - clear
+    - save
+    - load
     - menu
     - exit
     >>> exit
@@ -58,20 +61,13 @@ This project is an advanced Python-based calculator application designed for a s
 ## Design Patterns
 
 ### Facade Pattern
-
-The `HistoryManager` class provides a simplified interface for managing the calculation history with Pandas.
+The `Calculator` class acts as a facade.
 
 ### Factory Method Pattern
-
-The `CalculatorFactory` class provides a factory method for creating calculators.
-
-### Singleton Pattern
-
-The `HistoryManager` class ensures there is only one instance managing the history.
+Used in the `StrategyFactory` class to create instances of different arithmetic operation strategies.
 
 ### Strategy Pattern
-
-The `Calculator` class uses strategy classes (`AddStrategy`, `SubtractStrategy`, `MultiplyStrategy`, `DivideStrategy`) to encapsulate different arithmetic operations.
+Used in the `Calculator` class to perform different arithmetic operations.
 
 ## Environment Variables
 

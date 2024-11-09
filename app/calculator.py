@@ -1,110 +1,110 @@
 """
-This module contains the Calculator class which performs arithmetic operations
-and manages the calculation history.
+This module defines the Calculator class, which provides basic arithmetic operations
+and manages the history of these operations.
 """
 
-import os
 import logging
 import pandas as pd
+from app.calculator_config import CalculatorConfig
+from app.strategy_factory import StrategyFactory
 
 logger = logging.getLogger('app.calculator')
 
 class Calculator:
     """
-    The Calculator class performs arithmetic operations and manages the calculation history.
+    A simple calculator class to perform basic arithmetic operations and manage history.
     """
-    def __init__(self):
+    def __init__(self, config=None):
+        """
+        Initialize the Calculator with an optional configuration.
+
+        Args:
+            config (CalculatorConfig, optional): Configuration for the calculator. Defaults to None.
+        """
+        self.config = config if config else CalculatorConfig()
         self.history = pd.DataFrame(columns=['operation', 'operand1', 'operand2', 'result'])
+        self.observers = []
         logger.info("Calculator initialized with empty history.")
 
-    def add(self, a, b):
+    def add_observer(self, observer):
         """
-        Perform addition of two numbers and save the result to history.
-        """
-        result = a + b
-        self.save_operation('add', a, b, result)
-        logger.debug("Performed addition: %s + %s = %s", a, b, result)
-        return result
+        Add an observer to the calculator.
 
-    def subtract(self, a, b):
+        Args:
+            observer: The observer to add.
         """
-        Perform subtraction of two numbers and save the result to history.
-        """
-        result = a - b
-        self.save_operation('subtract', a, b, result)
-        logger.debug("Performed subtraction: %s - %s = %s", a, b, result)
-        return result
+        self.observers.append(observer)
 
-    def multiply(self, a, b):
+    def notify_observers(self, operation, a, b, result):
         """
-        Perform multiplication of two numbers and save the result to history.
-        """
-        result = a * b
-        self.save_operation('multiply', a, b, result)
-        logger.debug("Performed multiplication: %s * %s = %s", a, b, result)
-        return result
+        Notify all observers of an operation.
 
-    def divide(self, a, b):
+        Args:
+            operation (str): The operation performed.
+            a (float): The first operand.
+            b (float): The second operand.
+            result (float): The result of the operation.
         """
-        Perform division of two numbers and save the result to history.
-        Raise a ValueError if division by zero is attempted.
-        """
-        if b == 0:
-            logger.error("Attempted to divide by zero.")
-            raise ValueError("Cannot divide by zero")
-        result = a / b
-        self.save_operation('divide', a, b, result)
-        logger.debug("Performed division: %s / %s = %s", a, b, result)
-        return result
+        for observer in self.observers:
+            observer.update(operation, a, b, result)
 
-    def save_operation(self, operation, operand1, operand2, result):
+    def save_operation(self, operation, a, b, result):
         """
-        Save the operation and its result to the calculation history.
+        Save an operation to the history.
+
+        Args:
+            operation (str): The operation performed.
+            a (float): The first operand.
+            b (float): The second operand.
+            result (float): The result of the operation.
         """
         new_record = pd.DataFrame([{
             'operation': operation,
-            'operand1': operand1,
-            'operand2': operand2,
+            'operand1': a,
+            'operand2': b,
             'result': result
         }])
-        # Ensure the new record DataFrame has the same columns as the history DataFrame
-        new_record = new_record.reindex(columns=self.history.columns)
-        # Exclude empty or all-NA entries before concatenation
-        if not new_record.isna().all().all():
-            self.history = pd.concat([self.history, new_record], ignore_index=True)
-            # Comment out or delete the following line to remove the log message
-            # logger.info("Saved history: %s", new_record.to_dict(orient='records'))
+        self.history = pd.concat([self.history, new_record], ignore_index=True)
+        self.notify_observers(operation, a, b, result)
 
-    def save_history(self, filename):
+    def load_history(self, filename=None):
         """
-        Save the calculation history to a CSV file.
-        """
-        self.history.to_csv(filename, index=False)
-        logger.info("History saved to %s", filename)
+        Load the history from a file.
 
-    def load_history(self, filename):
+        Args:
+            filename (str, optional): The filename to load the history from. Defaults to None.
         """
-        Load the calculation history from a CSV file.
-        """
-        if os.path.exists(filename):
+        filename = filename or self.config.calculator_history_file
+        try:
             self.history = pd.read_csv(filename)
-            logger.info("History loaded from %s", filename)
-        else:
-            logger.warning("History file %s does not exist", filename)
+            logger.info("Calculator history loaded from file: %s", filename)
+        except FileNotFoundError:
+            logger.warning("History file not found: %s", filename)
+        except pd.errors.EmptyDataError:
+            logger.warning("History file is empty: %s", filename)
 
-    def clear_history(self):
+    def execute_operation(self, operation, a, b):
         """
-        Clear the current calculation history.
-        """
-        self.history = pd.DataFrame(columns=['operation', 'operand1', 'operand2', 'result'])
-        logger.info("History cleared")
+        Execute an operation using the specified strategy.
 
-    def delete_history(self, filename):
+        Args:
+            operation (str): The operation to perform.
+            a (float): The first operand.
+            b (float): The second operand.
+
+        Returns:
+            float: The result of the operation.
         """
-        Delete a specified history file.
+        strategy = StrategyFactory.create_strategy(operation)
+        result = strategy.execute(a, b)
+        self.save_operation(operation, a, b, result)
+        return result
+
+    def get_history(self):
         """
-        if os.path.exists(filename):
-            os.remove(filename)
-            logger.info("History file %s deleted", filename)
-        else:
-            logger.warning("History file %s does not exist", filename)
+        Get the history of operations.
+
+        Returns:
+            pd.DataFrame: The history of operations.
+        """
+        return self.history

@@ -1,11 +1,15 @@
 """
-This module contains the REPL class for the calculator application.
+This module defines the REPL class, which provides a command-line interface
+for the Calculator application.
 """
 
 import logging
+import os
+import importlib.util
+import pandas as pd
 from app.calculator import Calculator
-from app.plugins import load_plugins
-from app.state_manager import StateManager
+from app.observers import LoggingObserver, AutoSaveObserver
+from app.manager_history import ManagerHistory
 
 logger = logging.getLogger('app.repl')
 
@@ -21,123 +25,108 @@ class REPL:
         Initialize the REPL with calculator and plugin commands.
         """
         self.calculator = Calculator()
-        self.state_manager = StateManager('data/gpt_states.csv')
-        self.plugins = load_plugins()
+        self.history_manager = ManagerHistory()
+        self.logging_observer = LoggingObserver()
+        self.auto_save_observer = AutoSaveObserver(self.history_manager)
+        self.calculator.add_observer(self.logging_observer)
+        self.calculator.add_observer(self.auto_save_observer)
         self.commands = {
-            'add': self.add,
-            'subtract': self.subtract,
-            'multiply': self.multiply,
-            'divide': self.divide,
-            'list_states': self.list_states,
-            'get_state_details': self.get_state_details,
-            'save_state_abbreviations': self.save_state_abbreviations,
+            'history': self.show_history,
+            'clear': self.clear_history,
+            'save': self.save_history,
+            'save_to': self.save_to,
+            'load': self.load_history,
+            'load_from': self.load_from,
             'menu': self.menu,
             'exit': self.exit
         }
-        # Merge plugin commands into the REPL commands
-        self.commands.update({
-            name: self.create_plugin_command(func) for name, func in self.plugins.items()
-        })
+        self.load_plugins()
         logger.info("REPL initialized with commands: %s", ", ".join(self.commands.keys()))
 
-    def run(self):
+        # Load calculator history from file
+        self.calculator.load_history()
+
+    def load_plugins(self):
         """
-        Start the REPL loop to accept and execute user commands.
+        Load plugins from the plugins directory and register their commands.
         """
-        logger.info("REPL started.")
-        while True:
-            command = input(">>> ").strip().lower()
-            if command in self.commands:
-                logger.debug("Executing command: %s", command)
-                try:
-                    self.commands[command]()
-                except ValueError as e:
-                    print(e)
-            else:
-                logger.warning("Unknown command: %s", command)
-                print("Unknown command")
+        plugins_dir = os.path.join(os.path.dirname(__file__), 'plugins')
+        for filename in os.listdir(plugins_dir):
+            if filename.endswith('.py'):
+                plugin_name = filename[:-3]
+                plugin_path = os.path.join(plugins_dir, filename)
+                spec = importlib.util.spec_from_file_location(plugin_name, plugin_path)
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+                if hasattr(module, plugin_name):
+                    self.commands[plugin_name] = self.create_plugin_command(getattr(module,
+                                                                                    plugin_name))
 
     def create_plugin_command(self, func):
         """
         Create a plugin command that takes two numeric inputs and returns the result.
         """
         def command():
-            a = float(input("Enter first number: "))
-            b = float(input("Enter second number: "))
-            result = func(a, b)
-            print(f"Result: {result}")
-            self.calculator.save_operation(func.__name__, a, b, result)
+            try:
+                a = float(input("Enter first number: "))
+                b = float(input("Enter second number: "))
+                result = func(a, b)
+                print(f"Result: {result}")
+                self.calculator.save_operation(func.__name__, a, b, result)
+            except ValueError as e:
+                print(f"Error: {e}")
         return command
 
-    def add(self):
+    def show_history(self):
         """
-        Perform addition of two numbers.
+        Show the history of operations.
         """
-        a = float(input("Enter first number: "))
-        b = float(input("Enter second number: "))
-        result = self.calculator.add(a, b)
-        print(f"Result: {result}")
+        self.history_manager.print_history()
 
-    def subtract(self):
+    def clear_history(self):
         """
-        Perform subtraction of two numbers.
+        Clear the history of operations.
         """
-        a = float(input("Enter first number: "))
-        b = float(input("Enter second number: "))
-        result = self.calculator.subtract(a, b)
-        print(f"Result: {result}")
+        self.history_manager.clear_history()
+        self.calculator.history = pd.DataFrame(columns=['operation', 'operand1',
+                                                        'operand2', 'result'])
 
-    def multiply(self):
+    def save_history(self):
         """
-        Perform multiplication of two numbers.
+        Save the current history to the default file.
         """
-        a = float(input("Enter first number: "))
-        b = float(input("Enter second number: "))
-        result = self.calculator.multiply(a, b)
-        print(f"Result: {result}")
+        current_history = self.calculator.get_history()
+        self.history_manager.save_history(current_history)
 
-    def divide(self):
+    def save_to(self):
         """
-        Perform division of two numbers.
+        Save the current history to a specified file.
         """
-        a = float(input("Enter first number: "))
-        b = float(input("Enter second number: "))
-        try:
-            result = self.calculator.divide(a, b)
-            print(f"Result: {result}")
-        except ValueError as e:
-            print(e)
+        filename = input("Enter filename to save history in data folder (example.csv): ")
+        filepath = os.path.join('data', filename)
+        self.history_manager.save_to(filepath)
+        print(f"History saved to {filepath}")
 
-    def list_states(self):
+    def load_history(self):
         """
-        List all state names.
+        Load history from a specified file.
         """
-        states = self.state_manager.list_states()
-        print("States:")
-        for state in states:
-            print(f" - {state}")
+        filename = input("Enter filename to load history from data folder: ")
+        data_folder = 'data'
+        source_path = os.path.join(data_folder, filename)
+        self.history_manager.load_from(source_path)
+        self.calculator.history = self.history_manager.load_history()
+        print(f"History loaded from {source_path}")
 
-    def get_state_details(self):
+    def load_from(self):
         """
-        Get details of a state by its abbreviation.
+        Load history from a specified file.
         """
-        abbreviation = input("Enter state abbreviation: ").upper()
-        details = self.state_manager.get_state_details(abbreviation)
-        if details:
-            print(f"Details for {abbreviation}:")
-            for key, value in details.items():
-                print(f" - {key}: {value}")
-        else:
-            print(f"No details found for state abbreviation: {abbreviation}")
-
-    def save_state_abbreviations(self):
-        """
-        Save state abbreviations and names to a new CSV file.
-        """
-        source_csv = input("Enter source CSV filename (e.g., gpt_states.csv): ")
-        target_csv = input("Enter target CSV filename (e.g., state_abbreviations.csv): ")
-        self.state_manager.save_state_abbreviations(source_csv, target_csv)
-        print(f"State abbreviations saved to data/{target_csv}")
+        filename = input("Enter filename to load history from data folder: ")
+        filepath = os.path.join('data', filename)
+        self.history_manager.load_from(filepath)
+        self.calculator.history = self.history_manager.load_history()
+        print(f"History loaded from {filepath}")
 
     def menu(self):
         """
@@ -154,3 +143,18 @@ class REPL:
         logger.info("Exiting REPL.")
         print("Exiting...")
         raise SystemExit
+
+    def run(self):
+        """
+        Run the REPL loop, accepting and executing commands.
+        """
+        while True:
+            command = input("Enter command: ").strip().lower()
+            if command in self.commands:
+                self.commands[command]()
+            else:
+                print("Unknown command")
+
+if __name__ == "__main__":
+    repl = REPL()
+    repl.run()

@@ -2,7 +2,7 @@
 This module contains the add_command function which performs addition.
 """
 
-def add_command(a, b):
+def add(a, b):
     """
     Perform addition of two numbers.
 
